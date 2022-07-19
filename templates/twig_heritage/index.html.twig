@@ -1,0 +1,13 @@
+{% extends 'heritage.html.twig' %}
+
+{% block titreDocument %}Heritage{% endblock %}
+
+{% block corpsDePage %}
+
+{# Permet d'appeler le code par défaut du block parent #}
+{{ parent() }}
+
+<div>
+    <p class="text-danger">Ceci est un nouveau corps de page</p>
+</div>
+{% endblock %}
