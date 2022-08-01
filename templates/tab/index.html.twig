@@ -1,25 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ asset('node_modules/bootstrap/dist/css/bootstrap.css') }}">
-    <title>Document</title>
-</head>
-<body>
-    <table class="table table-striped">
-    {% for value in notes %}
-        <tr>
-            <td>{{ value }}</td>
-        </tr>
-    {% endfor %}
-    </table>
-    <div class="alert alert-info">
-        <p>Taille du tableau : {{ notes|length }}</p>
-        <p>Note minimale : {{ min(notes) }}</p>
-        <p>Note maximale : {{ max(notes) }}</p>
-        <p>{{ testString | easyStringCut }}</p>
-    </div>
-</body>
-</html>
+{% extends 'template.html.twig' %}
+
+{% block title %}
+Tableau de notes
+{% endblock %}
+
+{% block mainTitle %}
+Tableau de statistiques des notes
+{% endblock %}
+    
+{% block body %}
+<table class="table table-striped">
+{% for value in notes %}
+    <tr>
+        <td>{{ value }}</td>
+    </tr>
+{% endfor %}
+</table>
+<div class="alert alert-info">
+    <p>Taille du tableau : {{ notes|length }}</p>
+    <p>Note minimale : {{ min(notes) }}</p>
+    <p>Note maximale : {{ max(notes) }}</p>
+    <p>{{ testString | easyStringCut }}</p>
+</div>
+{% endblock %}

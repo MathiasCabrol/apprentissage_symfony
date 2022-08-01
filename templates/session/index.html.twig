@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends 'template.html.twig' %}
+
+{% block body %}
     <h1>Vous avez visitée cette page {{app.session.get('nbVisite')}} fois</h1>
-</body>
-</html>
+    <p>Mon URL absolue : {{ url('app_session') }}</p>
+{% endblock %}
+
