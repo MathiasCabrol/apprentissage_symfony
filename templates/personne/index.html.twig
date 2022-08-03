@@ -17,16 +17,19 @@
                     <h5 class="card-title">{{ personne.name }} {{ personne.firstName }}</h5>
                     <h6 class="card-subtitle mb-2 text-muted">{{ personne.age }} ans</h6>
                     <a href={{ path('personne.detail', {id: personne.id})}} class="card-link">Détails</a>
+                    <a href={{ path('personne.delete', {id: personne.id})}} class="card-link">Supprimer</a>
                 </div>
             </div>
         </div>
     {% endfor %}
     </div>
-    <div class="row justify-content-between">
-        {% if page != 1 %}
-        <div class="col-5 text-center"><a class="btn btn-primary" href={{ path('personne.byPage', {page: (page - 1)})}}>Page précédente</a></div>
-        {% endif %}
-        <div class="col-2 text-center"><p>Page {{ page }}</p></div>
-        <div class="col-5 text-center"><a class="btn btn-primary" href={{ path('personne.byPage', {page: (page + 1)})}}>Page suivante</a></div>
-    </div>
+    {% if isPaginated is defined and isPaginated %}
+        <div class="row justify-content-between">
+            {% if page != 1 %}
+            <div class="col-5 text-center"><a class="btn btn-primary" href={{ path('personne.byPage', {page: (page - 1)})}}>Page précédente</a></div>
+            {% endif %}
+            <div class="col-2 text-center"><p>Page {{ page }}</p></div>
+            <div class="col-5 text-center"><a class="btn btn-primary" href={{ path('personne.byPage', {page: (page + 1)})}}>Page suivante</a></div>
+        </div>
+    {% endif %}
 {% endblock %}
