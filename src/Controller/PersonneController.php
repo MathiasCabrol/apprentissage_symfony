@@ -25,6 +25,19 @@ class PersonneController extends AbstractController
         ]);
     }
 
+    #[Route('/byAge/stats/{ageMin}/{ageMax}', name: 'personne.byAge')]
+    public function statsByAge(ManagerRegistry $doctrine, $ageMin, $ageMax) : Response {
+
+        $repository = $doctrine->getRepository(Personne::class);
+        $stats = current($repository->statsPersonnesByAgeInterval($ageMin, $ageMax));
+
+        return $this->render('personne/stats.html.twig', [
+            'stats' => $stats,
+            'ageMin' => $ageMin,
+            'ageMax' => $ageMax,
+        ]);
+    }
+
     #[Route('/byPage/{page?1}/{nb?15}', name: 'personne.byPage')]
     public function byName(ManagerRegistry $doctrine, $page, $nb) : Response {
 
@@ -57,8 +70,8 @@ class PersonneController extends AbstractController
     {
         $entityManager = $doctrine->getManager();
         $personne = new Personne;
-        $personne->setFirstname('Mathias');
-        $personne->setName('Cabrol');
+        $personne->setFirstname('Mathilde');
+        $personne->setName('Leboeuf');
         $personne->setAge('24');
         $entityManager->persist($personne);
         $entityManager->flush();

@@ -1,0 +1,14 @@
+{% extends 'template.html.twig' %}
+
+{% block body %}
+
+<div class="row justify-content-around my-5">
+    <div class="col-4 text-center">
+        <p>L'age moyen est de {{ stats.ageMoyen | ceil }} ans arrondi au supérieur dans la trache d'âge de {{ ageMin }} à {{ ageMax }}.</p>
+    </div>
+    <div class="col-4 text-center">
+        <p>Ce chiffre concerne {{ stats.nombrePersonne }} personnes.</p>
+    </div>
+</div>
+
+{% endblock %}

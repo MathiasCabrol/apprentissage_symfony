@@ -11,6 +11,7 @@ class CustomTwigExtensions extends AbstractExtension
     {
         return [
             new TwigFilter('easyStringCut', [$this, 'easyStringCut']),
+            new TwigFilter('ceil', [$this, 'ceil'])
         ];
     }
 
@@ -18,5 +19,10 @@ class CustomTwigExtensions extends AbstractExtension
     {
         $newString = substr($string, 3);
         return $newString;
+    }
+
+    public function ceil(float $number): int
+    {
+        return ceil($number);
     }
 }
