@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Personne;
+use App\Form\PersonneType;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -66,19 +68,63 @@ class PersonneController extends AbstractController
     }
 
     #[Route('/add', name: 'personne.add')]
-    public function addPersonne(ManagerRegistry $doctrine): Response
+    public function addPersonne(ManagerRegistry $doctrine, Request $request): Response
     {
-        $entityManager = $doctrine->getManager();
         $personne = new Personne;
-        $personne->setFirstname('Mathilde');
-        $personne->setName('Leboeuf');
-        $personne->setAge('24');
-        $entityManager->persist($personne);
-        $entityManager->flush();
+        //$personne est l'image du formulaire PersonneType
+        $form = $this->createForm(PersonneType::class, $personne);
+        $form->remove('created_at');
+        $form->remove('updated_at');
 
-        return $this->render('personne/details.html.twig', [
-            'personne' => $personne,
-        ]);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted()) {
+            $manager = $doctrine->getManager();
+            $manager->persist($personne);
+            $manager->flush();
+            $this->addFlash('success', 'La personne'.$personne->getName().' a été ajoutée avec succès');
+            return $this->redirectToRoute('personne.byPage');
+        } else {
+            //Thème bootstrap du formulaire chargé dans config/packages/twig.yaml
+            return $this->render('personne/add-personne.html.twig', [
+                'form' => $form->createView(),
+            ]);
+        }
+        
+    }
+
+    #[Route('/edit/{id?0}', name: 'personne.edit')]
+    public function editPersonne(ManagerRegistry $doctrine, Request $request, Personne $personne = null): Response
+    {
+        $new = false;
+        if(!$personne) {
+            $personne = new Personne();
+            $new = true;
+        } 
+        //$personne est l'image du formulaire PersonneType
+        $form = $this->createForm(PersonneType::class, $personne);
+        $form->remove('created_at');
+        $form->remove('updated_at');
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted()) {
+            $manager = $doctrine->getManager();
+            $manager->persist($personne);
+            $manager->flush();
+            $message = 'La personne '.$personne->getName().' a bien été mise à jour';
+            if($new){
+                $message = 'La personne'.$personne->getName().' a bien été crée car l\'id n\'existait pas.';
+            }
+            $this->addFlash('success', $message);
+            return $this->redirectToRoute('personne.byPage');
+        } else {
+            //Thème bootstrap du formulaire chargé dans config/packages/twig.yaml
+            return $this->render('personne/add-personne.html.twig', [
+                'form' => $form->createView(),
+            ]);
+        }
+        
     }
 
     #[Route('/delete/{id}', name: 'personne.delete')]
