@@ -9,7 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/personne')]
 class PersonneController extends AbstractController
@@ -68,30 +70,50 @@ class PersonneController extends AbstractController
     }
 
     #[Route('/add', name: 'personne.add')]
-    public function addPersonne(ManagerRegistry $doctrine, Request $request): Response
+    public function addPersonne(ManagerRegistry $doctrine, SluggerInterface $slugger, Request $request): Response
     {
         $personne = new Personne;
         //$personne est l'image du formulaire PersonneType
         $form = $this->createForm(PersonneType::class, $personne);
         $form->remove('created_at');
         $form->remove('updated_at');
-
         $form->handleRequest($request);
 
-        if($form->isSubmitted()) {
+        if($form->isSubmitted() && $form->isValid()) {
             $manager = $doctrine->getManager();
             $manager->persist($personne);
-            $manager->flush();
-            $this->addFlash('success', 'La personne'.$personne->getName().' a été ajoutée avec succès');
-            return $this->redirectToRoute('personne.byPage');
+                    /** @var UploadedFile $brochureFile */
+                $photoFile = $form->get('photo')->getData();
+        
+                if ($photoFile) {
+                    $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    // this is needed to safely include the file name as part of the URL
+                    $safeFilename = $slugger->slug($originalFilename);
+                    $newFilename = $safeFilename.'-'.uniqid().'.'.$photoFile->guessExtension();
+                
+                    try {
+                        $photoFile->move(
+                            $this->getParameter('personne_image_directory'),
+                            $newFilename
+                        );
+                    } catch (FileException $e) {
+                        dump($e);
+                        // ... handle exception if something happens during file upload
+                    }
+                
+                    $personne->setImage($newFilename);
+                }
+                $manager->flush();
+                $this->addFlash('success', 'La personne'.$personne->getName().' a été ajoutée avec succès');
+                return $this->redirectToRoute('personne.byPage');
         } else {
             //Thème bootstrap du formulaire chargé dans config/packages/twig.yaml
             return $this->render('personne/add-personne.html.twig', [
                 'form' => $form->createView(),
             ]);
         }
-        
     }
+        
 
     #[Route('/edit/{id?0}', name: 'personne.edit')]
     public function editPersonne(ManagerRegistry $doctrine, Request $request, Personne $personne = null): Response

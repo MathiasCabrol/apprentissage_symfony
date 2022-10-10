@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\PersonneRepository;
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Traits\TimestampTrait;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\PersonneRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: PersonneRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -21,6 +22,8 @@ class Personne
     private $id;
 
     #[ORM\Column(type: 'string', length: 60)]
+    #[Assert\NotBlank(message: 'Veuillez renseigner ce champs')]
+    #[Assert\Length(min: 4, minMessage: 'Veuillez avoir au moins 4 caractères')]
     private $firstname;
 
     #[ORM\Column(type: 'string', length: 60)]
@@ -37,6 +40,9 @@ class Personne
 
     #[ORM\ManyToOne(targetEntity: Job::class, inversedBy: 'personnes')]
     private $job;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private $image;
 
     public function __construct()
     {
@@ -128,6 +134,18 @@ class Personne
     public function setJob(?Job $job): self
     {
         $this->job = $job;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }
