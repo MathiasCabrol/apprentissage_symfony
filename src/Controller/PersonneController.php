@@ -3,15 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\Personne;
+use App\Service\Helpers;
 use App\Form\PersonneType;
+use App\Service\UploaderService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/personne')]
 class PersonneController extends AbstractController
@@ -45,6 +45,8 @@ class PersonneController extends AbstractController
     #[Route('/byPage/{page?1}/{nb?15}', name: 'personne.byPage')]
     public function byName(ManagerRegistry $doctrine, $page, $nb) : Response {
 
+        $helpers = new Helpers();
+        $helpers->sayCc();
         $offset = ($page - 1) * $nb;
         $repository = $doctrine->getRepository(Personne::class);
         $personnes = $repository->findBy([], ['age' => 'ASC'], $nb, $offset);
@@ -70,7 +72,7 @@ class PersonneController extends AbstractController
     }
 
     #[Route('/add', name: 'personne.add')]
-    public function addPersonne(ManagerRegistry $doctrine, SluggerInterface $slugger, Request $request): Response
+    public function addPersonne(ManagerRegistry $doctrine, Request $request, UploaderService $uploader): Response
     {
         $personne = new Personne;
         //$personne est l'image du formulaire PersonneType
@@ -78,7 +80,7 @@ class PersonneController extends AbstractController
         $form->remove('created_at');
         $form->remove('updated_at');
         $form->handleRequest($request);
-
+        
         if($form->isSubmitted() && $form->isValid()) {
             $manager = $doctrine->getManager();
             $manager->persist($personne);
@@ -86,23 +88,10 @@ class PersonneController extends AbstractController
                 $photoFile = $form->get('photo')->getData();
         
                 if ($photoFile) {
-                    $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
-                    // this is needed to safely include the file name as part of the URL
-                    $safeFilename = $slugger->slug($originalFilename);
-                    $newFilename = $safeFilename.'-'.uniqid().'.'.$photoFile->guessExtension();
-                
-                    try {
-                        $photoFile->move(
-                            $this->getParameter('personne_image_directory'),
-                            $newFilename
-                        );
-                    } catch (FileException $e) {
-                        dump($e);
-                        // ... handle exception if something happens during file upload
-                    }
-                
-                    $personne->setImage($newFilename);
+                    $directory = $this->getParameter('personne_image_directory');
+                    $personne->setImage($uploader->uploadFile($photoFile, $directory));
                 }
+                // dd($personne);
                 $manager->flush();
                 $this->addFlash('success', 'La personne'.$personne->getName().' a été ajoutée avec succès');
                 return $this->redirectToRoute('personne.byPage');

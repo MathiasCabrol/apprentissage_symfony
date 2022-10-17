@@ -16,9 +16,9 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ personne.name }} {{ personne.firstName }}</h5>
                     <h6 class="card-subtitle mb-2 text-muted">{{ personne.age }} ans</h6>
-                    <a href={{ path('personne.detail', {id: personne.id})}} class="card-link">Détails</a>
-                    <a href={{ path('personne.delete', {id: personne.id})}} class="card-link">Supprimer</a>
-                    <a href={{ path('personne.edit', {id: personne.id})}} class="card-link">Modifier</a>
+                    <a href={{ path('personne.detail', {id: personne.id})}} class="card-link"><i class="fa-solid fa-circle-info"></i></a>
+                    <a href={{ path('personne.delete', {id: personne.id})}} class="card-link"><i class="fa-sharp fa-solid fa-trash"></i></a>
+                    <a href={{ path('personne.edit', {id: personne.id})}} class="card-link"><i class="fa-solid fa-pen-to-square"></i></a>
                 </div>
             </div>
         </div>

@@ -95,8 +95,13 @@ class Personne
         return $this->profile;
     }
 
-    public function setProfile(?Profile $profile): self
+    public function setProfile(null|Profile|ArrayCollection $profile): self
     {
+        if(!$profile instanceof Profile) {
+            if ($profile instanceof ArrayCollection && !$profile->isEmpty()) {
+                $profile = current($profile->toArray());
+            }
+        }
         $this->profile = $profile;
 
         return $this;

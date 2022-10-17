@@ -59,6 +59,7 @@ class PersonneType extends AbstractType
                             'image/jpeg',
                             'image/jpg',
                             'image/gif',
+                            'image/png',
                         ],
                         'mimeTypesMessage' => 'Please upload a valid Image',
                     ])
