@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Personne;
 use App\Service\Helpers;
 use App\Form\PersonneType;
+use App\Service\PdfService;
 use App\Service\UploaderService;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -170,5 +171,12 @@ class PersonneController extends AbstractController
         }
 
         return $this->redirectToRoute('personne.byPage');
+    }
+
+    #[Route('/pdf/{id}', name: 'personne.pdf')]
+    public function generatePdfPersonne(Personne $personne = null, PdfService $pdfService)
+    {
+        $html = $this->render('personne/details.html.twig', ['personne' => $personne]);
+        $pdfService->showPdfFile($html);
     }
 }
