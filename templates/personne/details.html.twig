@@ -3,5 +3,7 @@
 {% block body %}
 
 <div class="alert alert-success">{{ personne.firstname }} {{ personne.name }} {{ personne.age }}</div>
-
+    {% if personne.createdBy %}
+        <p>Created By: {{ personne.createdBy }}</p>
+    {% endif %}
 {% endblock %}

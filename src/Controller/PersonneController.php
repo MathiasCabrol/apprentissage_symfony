@@ -46,8 +46,6 @@ class PersonneController extends AbstractController
     #[Route('/byPage/{page?1}/{nb?15}', name: 'personne.byPage')]
     public function byName(ManagerRegistry $doctrine, $page, $nb) : Response {
 
-        $helpers = new Helpers();
-        $helpers->sayCc();
         $offset = ($page - 1) * $nb;
         $repository = $doctrine->getRepository(Personne::class);
         $personnes = $repository->findBy([], ['age' => 'ASC'], $nb, $offset);
@@ -127,6 +125,7 @@ class PersonneController extends AbstractController
             $message = 'La personne '.$personne->getName().' a bien été mise à jour';
             if($new){
                 $message = 'La personne'.$personne->getName().' a bien été crée car l\'id n\'existait pas.';
+                $personne->setCreatedBy($this->getUser());
             }
             $this->addFlash('success', $message);
             return $this->redirectToRoute('personne.byPage');
