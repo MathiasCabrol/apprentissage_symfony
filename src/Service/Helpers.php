@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\Security;
 class Helpers
 {
 
-    public function __construct(private LoggerInterface $logger, Security $security){}
+    public function __construct(private LoggerInterface $logger, private Security $security){}
 
     public function sayCc()
     {
@@ -16,7 +16,12 @@ class Helpers
     }
 
     public function getUser(): User
-    {
-        return $this->security->getUser();
+    {   
+        if($this->security->isGranted('ROLE_ADMIN')) {
+            $user = $this->security->getUser();
+            if($user instanceof User) {
+                return $user;
+            }
+        }
     }
 }

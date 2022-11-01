@@ -12,9 +12,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/personne')]
+#[
+    Route('/personne'),
+    IsGranted('ROLE_USER')
+]
 class PersonneController extends AbstractController
 {
 
@@ -43,7 +47,10 @@ class PersonneController extends AbstractController
         ]);
     }
 
-    #[Route('/byPage/{page?1}/{nb?15}', name: 'personne.byPage')]
+    #[
+        Route('/byPage/{page?1}/{nb?15}', name: 'personne.byPage'),
+        IsGranted('ROLE_USER')
+    ]
     public function byName(ManagerRegistry $doctrine, $page, $nb) : Response {
 
         $offset = ($page - 1) * $nb;
@@ -106,6 +113,7 @@ class PersonneController extends AbstractController
     #[Route('/edit/{id?0}', name: 'personne.edit')]
     public function editPersonne(ManagerRegistry $doctrine, Request $request, Personne $personne = null): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $new = false;
         if(!$personne) {
             $personne = new Personne();
