@@ -6,13 +6,16 @@ use App\Entity\Personne;
 use App\Service\Helpers;
 use App\Form\PersonneType;
 use App\Service\PdfService;
+use App\Event\AddPersonneEvent;
 use App\Service\UploaderService;
+use App\Event\ByPagePersonneEvent;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[
@@ -21,6 +24,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 ]
 class PersonneController extends AbstractController
 {
+
+    public function __construct(private EventDispatcherInterface $dispatcher) {}
 
     #[Route('/byAge/{ageMin}/{ageMax}', name: 'personne.byAge')]
     public function byAge(ManagerRegistry $doctrine, $ageMin, $ageMax) : Response {
@@ -56,6 +61,8 @@ class PersonneController extends AbstractController
         $offset = ($page - 1) * $nb;
         $repository = $doctrine->getRepository(Personne::class);
         $personnes = $repository->findBy([], ['age' => 'ASC'], $nb, $offset);
+        $byPagePersonneEvent = new ByPagePersonneEvent(count($personnes));
+        $this->dispatcher->dispatch($byPagePersonneEvent, ByPagePersonneEvent::BY_PAGE_PERSONNE_EVENT);
 
         return $this->render('personne/index.html.twig', [
             'personnes' => $personnes,
@@ -99,6 +106,11 @@ class PersonneController extends AbstractController
                 }
                 // dd($personne);
                 $manager->flush();
+                //Création d'évènement
+                $addPersonneEvent = new AddPersonneEvent($personne);
+                //dispatch
+                $this->dispatcher->dispatch($addPersonneEvent, AddPersonneEvent::ADD_PERSONNE_EVENT);
+                
                 $this->addFlash('success', 'La personne'.$personne->getName().' a été ajoutée avec succès');
                 return $this->redirectToRoute('personne.byPage');
         } else {

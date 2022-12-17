@@ -22,6 +22,20 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\EventListener\PersonneListener:
+        tags:
+            - { 
+                name: kernel.event_listener, 
+                event: personne.add
+            }
+            - { 
+                name: kernel.event_listener, 
+                event: personne.by_page,
+                method: onByPagePersonne,
+                #système de priorité d'évènements, les évènements sont éxécutés par ordre décroissant de priorité lors de la requête
+                priority: 100
+            }
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 

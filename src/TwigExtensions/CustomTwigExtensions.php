@@ -4,6 +4,7 @@ namespace App\TwigExtensions;
 
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class CustomTwigExtensions extends AbstractExtension 
 {

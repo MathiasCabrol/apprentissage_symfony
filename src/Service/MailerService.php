@@ -17,7 +17,7 @@ class MailerService
         $this->appName = $appName;
     }
 
-    public function sendEmail()
+    public function sendEmail($content = '<p>See Twig integration for better HTML integration!</p>', $subject = 'Hello world')
     {
         $email = (new Email())
             ->from('hello@example.com')
